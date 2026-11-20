@@ -1,17 +1,35 @@
 # Transactional email in Next.js with Courier
 
-A Next.js App Router app that sends three transactional emails through [Courier](https://www.courier.com/docs): a welcome email from a server action when someone signs up, a password reset with a one-time link from a route handler, and a receipt from a Stripe webhook. Courier delivers them through Resend, which you connect once in the Courier app. Adding SMS, push, or an in-app inbox later is a change to one `routing` line.
+A Next.js App Router app where [Courier](https://www.courier.com/docs) sends three transactional emails: a welcome email from a server action when someone signs up, a password reset with a one-time link from a route handler, and a receipt from a Stripe webhook. Courier delivers them through the email provider you connect, Resend in this sample, and adds SMS, push, in-app, fallback, templates, and one log when you need them.
 
 This is the companion project for [Add transactional emails to a Next.js app](https://www.courier.com/docs/guides/add-transactional-email-to-nextjs) in the Courier docs.
 
+## Build it with a coding agent
+
+Paste this into Claude Code, Cursor, or Codex inside your own Next.js app:
+
+```text
+Add transactional emails (welcome, password reset, receipts) to this Next.js App Router app with Courier.
+Follow https://www.courier.com/docs/guides/add-transactional-email-to-nextjs.md and the reference app at https://github.com/trycourier/courier-nextjs-email-quickstart.
+Use @trycourier/courier from a server-only lib/courier.ts and read COURIER_API_KEY from the environment.
+Send the welcome email from the signup server action, the password reset from a route handler with one Idempotency-Key per reset, and the receipt from the Stripe webhook with event.id as the key.
+Keep Resend as the email provider, connected in Courier.
+When done, run npm run send and show me the request id.
+```
+
+Install the Courier skill with `npx skills add trycourier/courier-skills`, and connect the [Courier MCP server](https://www.courier.com/docs/resources/mcp) so the agent can read Courier Logs itself.
+
 ## Prerequisites
 
-- Node 20.9 or newer
-- A [Courier account](https://app.courier.com/signup) and an [API key](https://app.courier.com/settings/api-keys)
-- A [Resend account](https://resend.com/signup) with a verified sending domain, connected in Courier on the [Resend integration page](https://app.courier.com/integrations/catalog/resend) ([setup guide](https://www.courier.com/docs/integrations/email/resend))
-- The [Stripe CLI](https://docs.stripe.com/stripe-cli), only for the receipt
+For the first send:
 
-Connect Resend in the same environment (Test or Production) as your API key. Integrations are per environment.
+- Node 20.9 or newer
+- A [Courier API key](https://app.courier.com/settings/api-keys). A Test key reaches your own workspace address through the built-in Courier Test Email Provider, so you can send before connecting anything.
+
+For the full build:
+
+- A [Resend account](https://resend.com/signup) with a verified sending domain, connected in Courier on the [Resend integration page](https://app.courier.com/integrations/catalog/resend) ([setup guide](https://www.courier.com/docs/integrations/email/resend)), in the same environment (Test or Production) as your API key
+- The [Stripe CLI](https://docs.stripe.com/stripe-cli), for the receipt
 
 ## Run it
 
@@ -37,7 +55,7 @@ npm run dev
 ```
 
 - **Welcome email:** open [localhost:3000](http://localhost:3000) and sign up with your address.
-- **Password reset:** `curl -X POST localhost:3000/api/password-reset -H "Content-Type: application/json" -d '{"email":"you@example.com"}'`
+- **Password reset:** `curl -X POST localhost:3000/api/password-reset -H "Content-Type: application/json" -d '{"email":"YOUR_EMAIL"}'`, using the address in `DEMO_EMAIL`. The stand-in user lookup knows only that address.
 - **Receipt:** run `stripe listen --forward-to localhost:3000/api/stripe`, copy the `whsec_` secret it prints into `STRIPE_WEBHOOK_SECRET`, restart `npm run dev`, then `stripe trigger invoice.payment_succeeded --override customer:email=you@example.com`.
 
 ## How the pieces fit
@@ -55,7 +73,7 @@ Every send is one call to `client.send.message` from [`@trycourier/courier`](htt
 
 ## Adapting it to your app
 
-**Replace the demo user.** The server action and the reset route use `user_123` because this sample has no database. Use your own user id and email.
+**Replace the stand-in users.** The server action uses `randomUUID()` in place of your database's user id, and the reset route's lookup knows only `DEMO_EMAIL`. Use your own user records.
 
 **Store the reset token.** The reset route generates a token and builds the link. Save a hash of the token, the user id, and an expiry in your database, and check them on your reset page.
 

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Courier + Next.js transactional email quickstart",
+  "description": "A Next.js App Router app that sends welcome, password reset, and Stripe receipt emails with Courier, delivered through Resend.",
+  "rules": [
+    "Use @trycourier/courier and read COURIER_API_KEY from the environment. Never hard-code a key.",
+    "Import the Courier client only from lib/courier.ts, which imports server-only, so the key never reaches a client bundle.",
+    "Send from server actions and route handlers with client.send.message, and set routing to the channels you want.",
+    "Pass an Idempotency-Key per event: a reset id for password resets, the Stripe event.id for receipts.",
+    "Verify Stripe webhooks with Stripe.webhooks.constructEvent on the raw body from request.text()."
+  ]
+}

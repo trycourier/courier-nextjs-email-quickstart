@@ -1,14 +1,15 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { courier } from "@/lib/courier";
 
 export async function signUp(formData: FormData) {
   const name = String(formData.get("name"));
   const email = String(formData.get("email"));
 
-  // Create the user in your database here. This sample has no database,
-  // so every signup uses the demo id.
-  const user = { id: "user_123", name, email };
+  // Create the user in your database and use its id. randomUUID() stands in
+  // for that id here, so each signup gets its own Courier profile.
+  const user = { id: randomUUID(), name, email };
 
   await courier().send.message({
     message: {
