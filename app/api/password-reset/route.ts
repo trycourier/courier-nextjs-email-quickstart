@@ -29,8 +29,8 @@ export async function POST(request: Request) {
         ],
       },
     },
-    // One key per reset. A retried request returns the first response
-    // instead of sending a second email.
+    // One key per reset. If the SDK retries this call, Courier returns the
+    // first response instead of sending a second email.
     "Idempotency-Key": `password-reset-${resetId}`,
   });
 
@@ -38,6 +38,7 @@ export async function POST(request: Request) {
 }
 
 // Stand-in for your user lookup. Replace it with a query against your database.
+// It only knows the demo user, so this route can't email arbitrary addresses.
 async function findUserByEmail(email: string) {
-  return { id: "user_123", email };
+  return email === process.env.DEMO_EMAIL ? { id: "user_123", email } : null;
 }
