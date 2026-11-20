@@ -13,8 +13,13 @@ async function main() {
   const apiKey = process.env.COURIER_API_KEY;
   const email = process.env.DEMO_EMAIL;
 
-  if (!apiKey || !email) {
-    console.error("Set COURIER_API_KEY and DEMO_EMAIL. Copy .env.example to .env.local and fill both in.");
+  if (!apiKey) {
+    console.error("COURIER_API_KEY is not set. Copy .env.example to .env.local and paste your key in.");
+    process.exit(1);
+  }
+
+  if (!email || email === "YOUR_EMAIL") {
+    console.error("DEMO_EMAIL is not set. Put your own email address in .env.local.");
     process.exit(1);
   }
 
