@@ -14,7 +14,7 @@ async function main() {
   const email = process.env.DEMO_EMAIL;
 
   if (!apiKey) {
-    console.error("COURIER_API_KEY is not set. Copy .env.example to .env.local and paste your key in.");
+    console.error("COURIER_API_KEY is not set. Add it to .env.local.");
     process.exit(1);
   }
 
