@@ -2,6 +2,11 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { courier } from "@/lib/courier";
 
 export async function POST(request: Request) {
+  // Build reset links from your configured URL, never from the request's Host
+  // header. Check it first, so a missing value fails the same way for everyone.
+  const appUrl = process.env.APP_URL;
+  if (!appUrl) throw new Error("APP_URL is not set. Reset links need your app's public URL.");
+
   const { email } = await request.json();
   const user = await findUserByEmail(email);
 
@@ -13,9 +18,6 @@ export async function POST(request: Request) {
   const token = randomBytes(32).toString("base64url");
   // Save resetId, user.id, a hash of the token, and an expiry in your database.
 
-  // Build the link from your configured URL, never from the request's Host header.
-  const appUrl = process.env.APP_URL;
-  if (!appUrl) throw new Error("APP_URL is not set. Reset links need your app's public URL.");
   const resetUrl = `${appUrl}/reset-password?token=${token}`;
 
   await courier().send.message({

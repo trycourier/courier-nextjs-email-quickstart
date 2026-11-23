@@ -1,6 +1,11 @@
 import Stripe from "stripe";
 import { courier } from "@/lib/courier";
 
+// Stripe sends amounts in each currency's smallest unit. Most use two decimal
+// places; these use none or three. https://docs.stripe.com/currencies
+const ZERO_DECIMAL = new Set(["bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf", "vnd", "vuv", "xaf", "xof", "xpf"]);
+const THREE_DECIMAL = new Set(["bhd", "jod", "kwd", "omr", "tnd"]);
+
 export async function POST(request: Request) {
   // Stripe signs the raw body, so read it as text, not JSON.
   const body = await request.text();
@@ -21,10 +26,11 @@ export async function POST(request: Request) {
   const invoice = event.data.object;
   if (!invoice.customer_email) return new Response("No email", { status: 200 });
 
+  const decimals = ZERO_DECIMAL.has(invoice.currency) ? 0 : THREE_DECIMAL.has(invoice.currency) ? 3 : 2;
   const amount = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: invoice.currency,
-  }).format(invoice.amount_paid / 100);
+  }).format(invoice.amount_paid / 10 ** decimals);
 
   await courier().send.message({
     message: {

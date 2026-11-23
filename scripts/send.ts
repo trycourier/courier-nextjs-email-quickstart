@@ -27,6 +27,7 @@ async function main() {
 
   const { requestId } = await client.send.message({
     message: {
+      // A demo user. Your app sends to the signed-up user from its database.
       to: { user_id: "user_123", email },
       routing: { method: "single", channels: ["email"] },
       content: {
