@@ -5,10 +5,7 @@ import Courier from "@trycourier/courier";
 config({ path: ".env.local", quiet: true });
 config({ quiet: true });
 
-/**
- * Sends the welcome email from app/actions.ts to DEMO_EMAIL, so you can prove
- * your API key and your Resend integration work before you wire up a form.
- */
+// Sends the welcome email to DEMO_EMAIL to prove your key and Resend work before you wire up a form.
 async function main() {
   const apiKey = process.env.COURIER_API_KEY;
   const email = process.env.DEMO_EMAIL;

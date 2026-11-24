@@ -7,8 +7,7 @@ export async function signUp(formData: FormData) {
   const name = String(formData.get("name"));
   const email = String(formData.get("email"));
 
-  // Create the user in your database and use its id. randomUUID() stands in
-  // for that id here, so each signup gets its own Courier profile.
+  // randomUUID() stands in for your database user id, so each signup gets its own profile.
   const user = { id: randomUUID(), name, email };
 
   await courier().send.message({

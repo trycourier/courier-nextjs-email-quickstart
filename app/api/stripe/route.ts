@@ -1,8 +1,7 @@
 import Stripe from "stripe";
 import { courier } from "@/lib/courier";
 
-// Stripe sends amounts in each currency's smallest unit. Most use two decimal
-// places; these use none or three. https://docs.stripe.com/currencies
+// Stripe amounts are in each currency's smallest unit: https://docs.stripe.com/currencies
 const ZERO_DECIMAL = new Set(["bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf", "vnd", "vuv", "xaf", "xof", "xpf"]);
 const THREE_DECIMAL = new Set(["bhd", "jod", "kwd", "omr", "tnd"]);
 
@@ -41,8 +40,7 @@ export async function POST(request: Request) {
         body: `We received your payment of ${amount} for invoice ${invoice.number}. Thanks for being a customer.`,
       },
     },
-    // Stripe can deliver the same event more than once. The event id as the
-    // key means a repeat delivery can't send a second receipt.
+    // Stripe can redeliver an event, so its id as the key blocks a second receipt.
     "Idempotency-Key": event.id,
   });
 

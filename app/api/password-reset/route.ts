@@ -2,16 +2,14 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { courier } from "@/lib/courier";
 
 export async function POST(request: Request) {
-  // Build reset links from your configured URL, never from the request's Host
-  // header. Check it first, so a missing value fails the same way for everyone.
+  // Build reset links from APP_URL, never from the request's Host header.
   const appUrl = process.env.APP_URL;
   if (!appUrl) throw new Error("APP_URL is not set. Reset links need your app's public URL.");
 
   const { email } = await request.json();
   const user = await findUserByEmail(email);
 
-  // Answer the same way whether or not the account exists, so this route
-  // can't be used to find out who has one.
+  // Same answer either way, so this route can't reveal who has an account.
   if (!user) return Response.json({ ok: true });
 
   const resetId = randomUUID();
@@ -34,16 +32,14 @@ export async function POST(request: Request) {
         ],
       },
     },
-    // One key per reset. If the SDK retries this call, Courier returns the
-    // first response instead of sending a second email.
+    // One key per reset, so a retry returns the first response instead of a second email.
     "Idempotency-Key": `password-reset-${resetId}`,
   });
 
   return Response.json({ ok: true });
 }
 
-// Stand-in for your user lookup. Replace it with a query against your database.
-// It only knows the demo user, so this route can't email arbitrary addresses.
+// Stand-in for your user query. It only knows the demo user, so it can't email arbitrary addresses.
 async function findUserByEmail(email: string) {
   return email === process.env.DEMO_EMAIL ? { id: "user_123", email } : null;
 }
